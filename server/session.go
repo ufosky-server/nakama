@@ -20,12 +20,14 @@ import (
 
 	"fmt"
 
-	"github.com/gogo/protobuf/proto"
+	//"github.com/gogo/protobuf/proto"
 	"github.com/gorilla/websocket"
 	"github.com/satori/go.uuid"
 
 	"go.uber.org/atomic"
 	"go.uber.org/zap"
+	//"encoding/json"
+	"github.com/gogo/protobuf/jsonpb"
 )
 
 type session struct {
@@ -90,7 +92,8 @@ func (s *session) Consume(processRequest func(logger *zap.Logger, session *sessi
 		}
 
 		request := &Envelope{}
-		err = proto.Unmarshal(data, request)
+		//err = proto.Unmarshal(data, request)
+		err = jsonpb.UnmarshalString(string(data[:]), request)
 		if err != nil {
 			s.logger.Warn("Received malformed payload", zap.Any("data", data))
 			s.Send(ErrorMessage(request.CollationId, UNRECOGNIZED_PAYLOAD, "Unrecognized payload"))
@@ -143,14 +146,17 @@ func (s *session) pingNow() bool {
 func (s *session) Send(envelope *Envelope) error {
 	s.logger.Debug(fmt.Sprintf("Sending %T message", envelope.Payload), zap.String("cid", envelope.CollationId))
 
-	payload, err := proto.Marshal(envelope)
+	//payload, err := proto.Marshal(envelope)
+	//payload, err := json.Marshal(envelope)
+	j := jsonpb.Marshaler{}
+	payload, err := j.MarshalToString(envelope)
 
 	if err != nil {
 		s.logger.Warn("Could not marshall Response to byte[]", zap.Error(err))
 		return err
 	}
 
-	return s.SendBytes(payload)
+	return s.SendBytes([]byte(payload))
 }
 
 func (s *session) SendBytes(payload []byte) error {
@@ -162,7 +168,8 @@ func (s *session) SendBytes(payload []byte) error {
 	}
 
 	s.conn.SetWriteDeadline(time.Now().Add(time.Duration(s.config.GetSocket().WriteWaitMs) * time.Millisecond))
-	err := s.conn.WriteMessage(websocket.BinaryMessage, payload)
+	//err := s.conn.WriteMessage(websocket.BinaryMessage, payload)
+	err := s.conn.WriteMessage(websocket.TextMessage, payload)
 	if err != nil {
 		s.logger.Warn("Could not write message", zap.Error(err))
 		//TODO investigate whether we need to cleanupClosedConnection if write fails

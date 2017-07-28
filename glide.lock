@@ -1,5 +1,5 @@
 hash: ff9abb7b8ba5a48c7ca600b2e89bc295be3d62101e22ef8ed817b7114a3015a7
-updated: 2017-07-09T16:20:42.443074055+01:00
+updated: 2017-07-28T10:15:42.13668544+08:00
 imports:
 - name: cloud.google.com/go
   version: 934866196d63fdcd8291ef6f16e70f4a830cda22
@@ -18,7 +18,7 @@ imports:
 - name: github.com/go-gorp/gorp
   version: 4deece61034873cb5b5416e81abe4cea7bd0da72
 - name: github.com/go-yaml/yaml
-  version: cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b
+  version: 25c4ec802a7d637f88d584ab26798e94ad14c13b
 - name: github.com/gogo/protobuf
   version: 100ba4e885062801d56799d78530b73b178a78f3
   subpackages:
